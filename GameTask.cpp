@@ -2,8 +2,10 @@
 #include "GameTask.h"
 #include "common.h"
 #include"keyCheck.h"
+#include"Collsion.h"
 #include "Camera.h"
 #include "Model.h"
+#include "Stage.h"
 #include "Player.h"
 #include "Enemy.h"
 
@@ -13,11 +15,13 @@ GameTask::GameTask()
 	SystemInit();//最初の初期化
 	CheckKeyInit();		//キーチェック初期化
 	
-	playerModel = MV1LoadModel("model/Knight/Knight.mv1");
+	//playerModel = MV1LoadModel("model/Knight/Knight.mv1");
+	playerModel = MV1LoadModel("model/PlayerKnight/PlayerKnightModel_Test.mv1");
 	enemyModel = MV1LoadModel("model/NormalHuman/NormalHuman.mv1");
+	stageModel = MV1LoadModel("model/stage/stage.mv1");
 
-
-
+	collsion = new Collsion();
+	stage = new Stage(stageModel);
 	//model = new Model();
 	player = new Player(playerModel);//プレイヤーモデルオブジェクトの保存
 	//camera = new Camera();
@@ -27,15 +31,20 @@ GameTask::GameTask()
 	}
 	enemy = new Enemy(enemyModel,player);
 
+	testHitFlag = false;
+	testAttackFlag = false;
 }
 
 
 GameTask::~GameTask()
 {
+	delete(collsion);
 	delete(camera);
+	delete(stage);
 	//delete(model);
 	delete(player);
 	delete(enemy);
+	MV1DrawModel(stageModel);
 	MV1DrawModel(playerModel);
 	MV1DrawModel(enemyModel);
 
@@ -65,9 +74,11 @@ void GameTask::GameMainLoop(void)
 	CheckKey();
 	
 	camera->Update();
+	stage->Update();
 	player->Update();
 	enemy->Update();
 
+	stage->Render();
 	player->Render();
 	enemy->Render();
 
@@ -76,17 +87,47 @@ void GameTask::GameMainLoop(void)
 	model->Render();
 	*/
 
-	for (int z = 0; z < 11; z++)//X座標をZ軸にずらす
-	{
-		DrawLine3D(VGet(-500.0f, 0.0f, 0.0f + 100 * z - 500.0f), VGet(500.0f, 0.0f, 0.0f + 100 * z - 500.0f), 0xff0000);//X座標の線
+	//当たり判定
+	VECTOR aPos = player->GetHitSpherePosition();
+	VECTOR bPos = enemy->GetHitSpherePosition();
+	float aR = player->GetHitSphereRadius();
+	float bR = enemy->GetHitSphereRadius();
 
-	}
-	for (int x = 0; x < 11; x++)//Z座標をX軸にずらす
+	VECTOR attackPos = player->GetAttackSpherePosition();
+	float AttackR = player->GetAttackSphereRadius();
+	int attackFlag = player->GetPlayerAttackFlag();
+
+	//プレイヤーとエネミーの体が当たっているか？
+	if (collsion->SphereVsSphere(aPos, aR, bPos, bR))
 	{
-		DrawLine3D(VGet(-500.0f + 100 * x, 0.0f, -500.f), VGet(-500.0f + 100 * x, 0.0f, 500.f), 0x0000ff);//Z座標の線
+		testHitFlag = true;
 	}
+	else
+	{
+		testHitFlag = false;
+	}
+
+	//攻撃が敵に当たっているか？
+	if (attackFlag)
+	{
+		if (collsion->SphereVsSphere(attackPos, AttackR, bPos, bR))
+		{
+			testAttackFlag = true;
+		}
+	}
+	else
+	{
+		testAttackFlag = false;
+	}
+
+	if (testHitFlag)
+	{
+		DrawString(200, 0, "Hit!", 0xffff00);
+	}
+	if (testAttackFlag)
+	{
+		DrawString(400, 0, "AttackHit!", 0xffff00);
+	}
+
 	DrawString(0, 0, "MAIN", 0xffff00);
-	//DrawLine3D(VGet(-500.0f,0.0f,0.0f),VGet(500.0f, 0.0f, 0.0f),0xff0000);//X座標の線
-	DrawLine3D(VGet(0.0f, -500.f, 0.0f), VGet(0.0f, 500.f, 0.0f), 0x00ff00);//Y座標の線
-																			//DrawLine3D(VGet(0.0f, 0.0f,-500.f ), VGet( 0.0f ,0.0f,500.f), 0x0000ff);//Z座標の線
 }
