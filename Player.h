@@ -4,9 +4,10 @@
 class Player :public MODEL_BASE
 {
 private:
-	float dir;
-	float modelspeed;
-
+	float dir;				//角度
+	float modelspeed;		//モデルの進むスピード
+	int playerAttackFlag;	//プレイヤーが攻撃しているか確かめるフラグ
+	int testAttackTime;	//テスト用の攻撃している時間
 public:
 	Player(int);
 	~Player();
@@ -14,4 +15,9 @@ public:
 	void Init(void);
 	void Update(void);
 	void Render(void);
+
+	int GetPlayerAttackFlag()
+	{
+		return playerAttackFlag;
+	}
 };

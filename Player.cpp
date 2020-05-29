@@ -24,31 +24,68 @@ void Player::Init(void)
 
 	dir = -90.0f;
 	modelspeed = 2.0f;
+	playerAttackFlag = false;//true:UŒ‚’†,false:UŒ‚‚µ‚Ä‚¢‚È‚¢
+	testAttackTime = 0;
 }
 void Player::Update(void)
 {
-	//¶‰E‰ñ“]
-	if (newKey[_1P_LEFT])
+	//UŒ‚‚µ‚Ä‚¢‚È‚¢
+	if (playerAttackFlag==false)
 	{
-		dir -= 1.5;
+		//UŒ‚
+		if (trgKeyDown[_1P_A])
+		{
+			playerAttackFlag = true;
+		}
+
+		//¶‰E‰ñ“]
+		if (newKey[_1P_LEFT])
+		{
+			dir -= 1.5;
+		}
+
+		if (newKey[_1P_RIGHT])
+		{
+			dir += 1.5;
+		}
+		rol.y = (DX_PI / 180)*dir;
+		//‘OŒãˆÚ“®
+		if (newKey[_1P_UP])
+		{
+			pos.x += cos(rol.y)*modelspeed;
+			pos.z -= sin(rol.y)*modelspeed;
+		}
+		if (newKey[_1P_DOWN])
+		{
+			pos.x -= cos(rol.y)*modelspeed;
+			pos.z += sin(rol.y)*modelspeed;
+		}
 	}
 
-	if (newKey[_1P_RIGHT])
+	//UŒ‚’†
+	if (playerAttackFlag)
 	{
-		dir += 1.5;
-	}
-	rol.y = (DX_PI / 180)*dir;
-	//‘OŒãˆÚ“®
-	if (newKey[_1P_UP])
-	{
+		float Attackspeed=10.0f;
 		pos.x += cos(rol.y)*modelspeed;
 		pos.z -= sin(rol.y)*modelspeed;
+
+		testAttackTime += 1.0f;
+		if (testAttackTime >= 30.0f)
+		{
+			playerAttackFlag = false;
+			testAttackTime = 0.0f;
+		}
 	}
-	if (newKey[_1P_DOWN])
-	{
-		pos.x -= cos(rol.y)*modelspeed;
-		pos.z += sin(rol.y)*modelspeed;
-	}
+
+	//”»’è‹…‚ÌÀ•Wİ’è
+	hitPos = pos;
+	hitPos.y = 150.0f;
+	HitR = 50.0f;
+	attackPos = pos;
+	attackPos.y = 150.0f;
+	attackPos.x += cos(rol.y)*50.0f;
+	attackPos.z -= sin(rol.y)*50.0f;
+	AttackR = 40.0f;
 
 	//ƒ^[ƒQƒbƒg(Œü‚¢‚Ä‚¢‚é•ûŒü)‚ğŒvZ
 	target = VTransform(VGet(300.0f, 0.0f, 0.0f), MGetRotY(rol.y));
@@ -61,4 +98,11 @@ void Player::Update(void)
 void Player::Render(void)
 {
 	MV1DrawModel(modelID);
+
+	DrawSphere3D(hitPos, HitR, 5.0f, 0xff0000, 0xffffff, false);
+	if (playerAttackFlag)
+	{
+		DrawSphere3D(attackPos, AttackR, 5.0f, 0xff0000, 0xffffff, false);
+	}
+	
 }
