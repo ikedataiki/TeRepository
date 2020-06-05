@@ -26,6 +26,9 @@ void Player::Init(void)
 	modelspeed = 2.0f;
 	playerAttackFlag = false;//true:UŒ‚’†,false:UŒ‚‚µ‚Ä‚¢‚È‚¢
 	testAttackTime = 0;
+
+	HPMAX = 10;
+	HP = HPMAX;
 }
 void Player::Update(void)
 {

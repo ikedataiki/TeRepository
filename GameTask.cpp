@@ -94,8 +94,16 @@ void GameTask::GameMainLoop(void)
 	float bR = enemy->GetHitSphereRadius();
 
 	VECTOR attackPos = player->GetAttackSpherePosition();
+	
+	float EDamageTime=enemy->GetDamageTime();
+
+	//デバック用--------------------------------------
 	float AttackR = player->GetAttackSphereRadius();
 	int attackFlag = player->GetPlayerAttackFlag();
+	int DamageFlag = enemy->GetDamageFlag();
+	int EHP = enemy->GetModelHP();
+	int PHP = player->GetModelHP();
+	//------------------------------------------------
 
 	//プレイヤーとエネミーの体が当たっているか？
 	if (collsion->SphereVsSphere(aPos, aR, bPos, bR))
@@ -108,16 +116,19 @@ void GameTask::GameMainLoop(void)
 	}
 
 	//攻撃が敵に当たっているか？
-	if (attackFlag)
+ 	if (attackFlag)
 	{
-		if (collsion->SphereVsSphere(attackPos, AttackR, bPos, bR))
+		if (collsion->SphereVsSphere(attackPos, AttackR, bPos, bR)&& DamageFlag==false)
 		{
 			testAttackFlag = true;
+			enemy->GetDamageHP();
+			enemy->GetChangeDamageFlagTrue();
 		}
 	}
 	else
 	{
 		testAttackFlag = false;
+		enemy->GetChangeDamageFlagFalse();
 	}
 
 	if (testHitFlag)
@@ -128,6 +139,13 @@ void GameTask::GameMainLoop(void)
 	{
 		DrawString(400, 0, "AttackHit!", 0xffff00);
 	}
+	if (DamageFlag)
+	{
+		DrawString(200, 60, "Damage!", 0xffff00);
+	}
 
+	DrawFormatString(600, 0, 0xffff00,"enmeyHP:%d playerHP:%d", EHP,PHP);
+	DrawFormatString(600, 60, 0xffff00,"DamageTime:%f",EDamageTime);
+	
 	DrawString(0, 0, "MAIN", 0xffff00);
 }

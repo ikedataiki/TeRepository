@@ -19,6 +19,12 @@ protected:
 	VECTOR attackPos;	//攻撃用判定球の中心座標
 	float AttackR;		//攻撃用判定球の半径
 
+	int HP;		//体力
+	int HPMAX;	//体力の最大
+
+	int DamageFlag;		//攻撃を食らった	かどうかのフラグ
+	float DamageTime;	//攻撃を食らった後の無敵時間
+
 	//アニメーション設定
 	int attachIndex;		//アニメ番号登録
 	float totalTime;		//再生時間
@@ -66,5 +72,31 @@ public:
 	int GetModelID()
 	{
 		return modelID;
+	}
+
+	int GetModelHP()
+	{
+		return HP;
+	}
+
+	int GetDamageFlag()
+	{
+		return DamageFlag;
+	}
+	int GetDamageHP()
+	{
+		return HP = HP - 1;
+	}
+	int GetChangeDamageFlagTrue()
+	{
+		return DamageFlag = true;
+	}
+	int GetChangeDamageFlagFalse()
+	{
+		return DamageFlag = false;
+	}
+	float GetDamageTime()
+	{
+		return DamageTime;
 	}
 };
